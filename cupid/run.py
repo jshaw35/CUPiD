@@ -31,6 +31,8 @@ import ploomber
 import cupid.timeseries
 import cupid.util
 
+import numpy as np
+
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 # fmt: off
@@ -163,25 +165,58 @@ def run(
 
                 # fmt: off
                 # pylint: disable=line-too-long
-                cupid.timeseries.create_time_series(
-                    component,
+                # Iterate over history file types
+                for vars, hist_str, time_step in zip(
                     timeseries_params[component]["vars"],
-                    timeseries_params[component]["derive_vars"],
-                    timeseries_params["case_name"],
                     timeseries_params[component]["hist_str"],
-                    ts_input_dirs,
-                    ts_output_dirs,
-                    # Note that timeseries output will eventually go in
-                    #   /glade/derecho/scratch/${USER}/archive/${CASE}/${component}/proc/tseries/
-                    timeseries_params["ts_done"],
-                    timeseries_params["overwrite_ts"],
-                    timeseries_params[component]["start_years"],
-                    timeseries_params[component]["end_years"],
-                    timeseries_params[component]["level"],
-                    num_procs,
-                    serial,
-                    logger,
-                )
+                    timeseries_params[component]["time_step"],
+                ):
+                    if time_step == -1:
+                        cupid.timeseries.create_time_series(
+                            component,
+                            vars,
+                            timeseries_params[component]["derive_vars"],
+                            timeseries_params["case_name"],
+                            hist_str,
+                            ts_input_dirs,
+                            ts_output_dirs,
+                            # Note that timeseries output will eventually go in
+                            #   /glade/derecho/scratch/${USER}/archive/${CASE}/${component}/proc/tseries/
+                            timeseries_params["ts_done"],
+                            timeseries_params["overwrite_ts"],
+                            timeseries_params[component]["start_years"],
+                            timeseries_params[component]["end_years"],
+                            timeseries_params[component]["level"],
+                            num_procs,
+                            serial,
+                            logger,
+                        )
+                    else:
+                        # Iterate over start and end years according to time_step and create time series
+                        for sub_startyear in np.arange(timeseries_params[component]["start_years"][0], timeseries_params[component]["end_years"][0]+1, time_step):
+                            sub_endyear = sub_startyear + time_step - 1
+                            if sub_endyear > timeseries_params[component]["end_years"]:
+                                sub_endyear = timeseries_params[component]["end_years"]
+                            print("Start year: ", sub_startyear, " End year: ", sub_endyear)
+                            cupid.timeseries.create_time_series(
+                                component,
+                                vars,
+                                timeseries_params[component]["derive_vars"],
+                                timeseries_params["case_name"],
+                                hist_str,
+                                ts_input_dirs,
+                                ts_output_dirs,
+                                # Note that timeseries output will eventually go in
+                                #   /glade/derecho/scratch/${USER}/archive/${CASE}/${component}/proc/tseries/
+                                timeseries_params["ts_done"],
+                                timeseries_params["overwrite_ts"],
+                                [sub_startyear],
+                                [sub_endyear],
+                                timeseries_params[component]["level"],
+                                num_procs,
+                                serial,
+                                logger,
+                            )
                 # fmt: on
                 # pylint: enable=line-too-long
 
