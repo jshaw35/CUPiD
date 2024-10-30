@@ -1,0 +1,213 @@
+################## SETUP ##################
+
+#NOTE:  CUPiD ocean diagnostics are currently only designed for upcoming MOM6
+#       ocean model, so for this tutorial we will only do example atmosphere,
+#       land, and sea ice diagnostics.
+
+################
+# Data Sources #
+################
+data_sources:
+    # sname is any string used as a nickname for this configuration. It will be
+    ### used as the name of the folder your computed notebooks are put in
+    sname: cesm_fhist_quick_run
+
+    # run_dir is the path to the folder you want
+    ### all the files associated with this configuration
+    ### to be created in
+    run_dir: /glade/work/jonahshaw/COSP_RTTOV_files/CESM2_output/
+
+    # nb_path_root is the path to the folder that cupid will
+    ### look for your template notebooks in. It doesn't have to
+    ### be inside run_dir, or be specific to this project, as
+    ### long as the notebooks are there
+    nb_path_root: ../nblibrary
+
+######################
+# Computation Config #
+######################
+
+computation_config:
+
+    # default_kernel_name is the name of the environment that
+    ### the notebooks in this configuration will be run in by default.
+    ### It must already be installed on your machine. You can also
+    ### specify a different environment than the default for any
+    ### notebook in NOTEBOOK CONFIG
+
+    default_kernel_name: cupid-analysis
+    log_level: "debug"
+
+############# NOTEBOOK CONFIG #############
+
+############################
+# Notebooks and Parameters #
+############################
+
+# All parameters under global_params get passed to all the notebooks
+
+global_params:
+  CESM_output_dir: /glade/derecho/scratch/jonahshaw/archive
+  # CESM_output_dir: /glade/derecho/scratch/${USER}/archive
+  #Uncomment code here if you need a complete CESM tutorial simulation:
+  #CESM_output_dir: /glade/campaign/cesm/tutorial/tutorial_2023_archive
+  lc_kwargs:
+    threads_per_worker: 1
+
+timeseries:
+  # This section of the config file controls the time series generator, which
+  # takes standard CESM history (time-slice) files and converts them into single
+  # variable time series files.
+ 
+  num_procs: 8
+  ts_done: [False]
+  overwrite_ts: [False]
+  ts_output_dir: /glade/derecho/scratch/jonahshaw/archive/20241022_095140.FHIST.f09_f09_mg17.cesm2.1.5_port_SSPbranch
+  case_name: ['20241022_095140.FHIST.f09_f09_mg17.cesm2.1.5_port_SSPbranch']
+
+  #Variables can either be provided as a list (e.g. ['X', 'Y', 'Z']) or,
+  #if you want to convert everything on the file, by using the ['process_all']
+  #keyword.  For the example below we'll only convert a single variable
+  #from each component.
+
+  atm:
+    vars: [[
+      'LU_TOA',
+      'LUC_TOA',
+      'FLUT',
+      'FLUTC',
+      'TS',
+      'CLDTOT',
+      'ICEFRAC',
+      'rttov_rad_clear_inst001',
+      'rttov_rad_total_inst001',
+      'rttov_rad_cloudy_inst001',
+      'rttov_rad_clear_inst002',
+      'rttov_rad_total_inst002',
+      'rttov_rad_cloudy_inst002',
+      'rttov_bt_clear_inst002',
+      'rttov_bt_total_inst002',
+      ],
+      [
+      'LU_TOA',
+      'LUC_TOA',
+      'FLUT',
+      'FLUTC',
+      'CLDTOT',
+      'OMEGA500',
+      'Q',
+      'rttov_rad_clear_inst001',
+      'rttov_rad_total_inst001',
+      'rttov_rad_cloudy_inst001',
+      'rttov_rad_clear_inst002',
+      'rttov_rad_total_inst002',
+      'rttov_rad_cloudy_inst002',
+      'rttov_bt_clear_inst002',
+      'rttov_bt_total_inst002',
+      ],
+      [
+      'uIVT',
+      'vIVT',
+      'PSL',
+      'Z500',
+      'Z850',
+      ]]
+    derive_vars: []
+    hist_str: ['h0', 'h1', 'h2']
+    start_years: [2015]
+    end_years: [2021]
+    time_step: [-1, 1, -1]
+    level: 'lev'
+
+  # lnd:
+  #   vars: []
+  #   derive_vars: []
+  #   hist_str: 'h0'
+  #   start_years: [2000]
+  #   end_years: [2014]
+  #   level: 'lev'
+
+  # ocn:
+  #   vars: [] # Not doing ocean analyses
+  #   derive_vars: []
+  #   hist_str: 'h'
+  #   start_years: [2000]
+  #   end_years: [2014]
+  #   level: 'lev'
+
+  # ice:
+  #   vars: []
+  #   derive_vars: []
+  #   hist_str: 'h'
+  #   start_years: [2000]
+  #   end_years: [2014]
+  #   level: 'lev'
+
+  # glc:
+  #   vars: []
+  #   derive_vars: []
+  #   hist_str: 'initial_hist'
+  #   start_years: [2000]
+  #   end_years: [2014]
+  #   level: 'lev'
+
+# compute_notebooks:
+
+  # This is where all the notebooks you want run and their
+  # parameters are specified. Several examples of different
+  # types of notebooks are provided.
+
+  # The first key (here infrastructure) is the name of the
+  # notebook from nb_path_root, minus the .ipynb
+
+    # infrastructure:
+    #   index:
+    #     parameter_groups:
+    #       none: {}
+
+    # atm:
+    #   nmse_PSL:
+    #     parameter_groups:
+    #       none:
+    #         validation_path: '/glade/campaign/cesm/development/cross-wg/diagnostic_framework/nmse_validation/fv1.9x2.5'
+    #         start_date: '0001-01-01'
+    #         end_date: '0004-01-01'
+    #         regridded_output: False
+
+
+########### JUPYTER BOOK CONFIG ###########
+
+##################################
+# Jupyter Book Table of Contents #
+##################################
+book_toc:
+
+  # See https://jupyterbook.org/en/stable/structure/configure.html for
+  # complete documentation of Jupyter book construction options
+
+  format: jb-book
+
+  # All filenames are notebook filename without the .ipynb, similar to above
+
+  # root: infrastructure/index # root is the notebook that will be the homepage for the book
+  # parts:
+
+    # Parts group notebooks into different sections in the Jupyter book
+    # table of contents, so you can organize different parts of your project.
+    # Each chapter is the name of one of the notebooks that you executed
+    # in compute_notebooks above, also without .ipynb
+
+    # - caption: Atmosphere
+    #   chapters:
+    #     - file: atm/nmse_PSL
+
+
+#####################################
+# Keys for Jupyter Book _config.yml #
+#####################################
+book_config_keys:
+
+  title: COSP-RTTOV historical - CUPiD  # Title of your jupyter book
+
+  # Other keys can be added here, see https://jupyterbook.org/en/stable/customize/config.html
+  ### for many more options   
