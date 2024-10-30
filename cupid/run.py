@@ -196,7 +196,7 @@ def run(
                         for sub_startyear in np.arange(timeseries_params[component]["start_years"][0], timeseries_params[component]["end_years"][0]+1, time_step):
                             sub_endyear = sub_startyear + time_step - 1
                             if sub_endyear > timeseries_params[component]["end_years"]:
-                                sub_endyear = timeseries_params[component]["end_years"]
+                                sub_endyear = timeseries_params[component]["end_years"][0]
                             print("Start year: ", sub_startyear, " End year: ", sub_endyear)
                             cupid.timeseries.create_time_series(
                                 component,
